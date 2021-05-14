@@ -1,0 +1,208 @@
+
+SUMMARISING RUN PARAMETERS
+==========================
+Input filename: /mnt/xomics/remcovc/raw_data_recognition_2020-03/umi_extracted/012_GACGATCT-ATGCACGA_L004_R3.processed.fastq.gz
+Trimming mode: paired-end
+Trim Galore version: 0.6.6
+Cutadapt version: 3.4
+Number of cores used for trimming: 1
+Quality Phred score cutoff: 20
+Quality encoding type selected: ASCII+33
+Using Illumina adapter for trimming (count: 34871). Second best hit was smallRNA (count: 8)
+Adapter sequence: 'AGATCGGAAGAGC' (Illumina TruSeq, Sanger iPCR; auto-detected)
+Maximum trimming error rate: 0.1 (default)
+Minimum required adapter overlap (stringency): 1 bp
+Minimum required sequence length for both reads before a sequence pair gets removed: 20 bp
+Running FastQC on the data once trimming has completed
+Output file will be GZIP compressed
+
+
+This is cutadapt 3.4 with Python 3.8.5
+Command line parameters: -j 1 -e 0.1 -q 20 -O 1 -a AGATCGGAAGAGC /mnt/xomics/remcovc/raw_data_recognition_2020-03/umi_extracted/012_GACGATCT-ATGCACGA_L004_R3.processed.fastq.gz
+Processing reads on 1 core in single-end mode ...
+Finished in 1937.08 s (37 µs/read; 1.64 M reads/minute).
+
+=== Summary ===
+
+Total reads processed:              52,971,273
+Reads with adapters:                16,772,253 (31.7%)
+Reads written (passing filters):    52,971,273 (100.0%)
+
+Total basepairs processed: 7,945,690,950 bp
+Quality-trimmed:              15,812,137 bp (0.2%)
+Total written (filtered):  7,781,569,028 bp (97.9%)
+
+=== Adapter 1 ===
+
+Sequence: AGATCGGAAGAGC; Type: regular 3'; Length: 13; Trimmed: 16772253 times
+
+No. of allowed errors:
+1-9 bp: 0; 10-13 bp: 1
+
+Bases preceding removed adapters:
+  A: 25.9%
+  C: 34.4%
+  G: 23.8%
+  T: 15.8%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+1	10843870	13242818.2	0	10843870
+2	3687369	3310704.6	0	3687369
+3	871288	827676.1	0	871288
+4	188966	206919.0	0	188966
+5	48778	51729.8	0	48778
+6	12057	12932.4	0	12057
+7	8435	3233.1	0	8435
+8	8395	808.3	0	8395
+9	7284	202.1	0	6681 603
+10	8207	50.5	1	7016 1191
+11	7297	12.6	1	6433 864
+12	7299	3.2	1	6568 731
+13	6727	0.8	1	6225 502
+14	7652	0.8	1	7089 563
+15	5565	0.8	1	5157 408
+16	5931	0.8	1	5489 442
+17	7684	0.8	1	7162 522
+18	4403	0.8	1	4055 348
+19	6667	0.8	1	6190 477
+20	5350	0.8	1	5027 323
+21	4523	0.8	1	4212 311
+22	5125	0.8	1	4776 349
+23	5152	0.8	1	4747 405
+24	5611	0.8	1	5021 590
+25	4994	0.8	1	4679 315
+26	4351	0.8	1	4036 315
+27	4229	0.8	1	3865 364
+28	4614	0.8	1	4259 355
+29	3749	0.8	1	3348 401
+30	4326	0.8	1	4008 318
+31	3319	0.8	1	3024 295
+32	3672	0.8	1	3378 294
+33	3936	0.8	1	3562 374
+34	3730	0.8	1	3341 389
+35	3266	0.8	1	3018 248
+36	3680	0.8	1	3374 306
+37	2742	0.8	1	2522 220
+38	4628	0.8	1	4277 351
+39	3166	0.8	1	2950 216
+40	2684	0.8	1	2494 190
+41	1782	0.8	1	1621 161
+42	3284	0.8	1	3092 192
+43	1843	0.8	1	1632 211
+44	3472	0.8	1	3222 250
+45	3112	0.8	1	2909 203
+46	1751	0.8	1	1576 175
+47	2979	0.8	1	2818 161
+48	912	0.8	1	725 187
+49	2065	0.8	1	1907 158
+50	662	0.8	1	552 110
+51	823	0.8	1	686 137
+52	634	0.8	1	542 92
+53	1560	0.8	1	1400 160
+54	2116	0.8	1	1966 150
+55	679	0.8	1	570 109
+56	1459	0.8	1	1293 166
+57	3405	0.8	1	3209 196
+58	827	0.8	1	702 125
+59	606	0.8	1	465 141
+60	2096	0.8	1	1938 158
+61	540	0.8	1	432 108
+62	452	0.8	1	373 79
+63	1940	0.8	1	1793 147
+64	1813	0.8	1	1664 149
+65	393	0.8	1	289 104
+66	473	0.8	1	399 74
+67	371	0.8	1	300 71
+68	290	0.8	1	229 61
+69	340	0.8	1	266 74
+70	445	0.8	1	379 66
+71	222	0.8	1	162 60
+72	246	0.8	1	180 66
+73	335	0.8	1	265 70
+74	301	0.8	1	221 80
+75	429	0.8	1	322 107
+76	557	0.8	1	406 151
+77	695	0.8	1	392 303
+78	784	0.8	1	408 376
+79	946	0.8	1	433 513
+80	894	0.8	1	547 347
+81	519	0.8	1	341 178
+82	424	0.8	1	300 124
+83	423	0.8	1	319 104
+84	399	0.8	1	309 90
+85	383	0.8	1	293 90
+86	376	0.8	1	269 107
+87	358	0.8	1	262 96
+88	393	0.8	1	256 137
+89	385	0.8	1	265 120
+90	368	0.8	1	254 114
+91	322	0.8	1	217 105
+92	326	0.8	1	207 119
+93	315	0.8	1	233 82
+94	366	0.8	1	219 147
+95	380	0.8	1	229 151
+96	367	0.8	1	229 138
+97	317	0.8	1	191 126
+98	252	0.8	1	173 79
+99	282	0.8	1	197 85
+100	212	0.8	1	160 52
+101	232	0.8	1	168 64
+102	224	0.8	1	157 67
+103	195	0.8	1	133 62
+104	175	0.8	1	122 53
+105	175	0.8	1	125 50
+106	167	0.8	1	118 49
+107	168	0.8	1	108 60
+108	185	0.8	1	129 56
+109	176	0.8	1	107 69
+110	164	0.8	1	102 62
+111	165	0.8	1	113 52
+112	131	0.8	1	82 49
+113	130	0.8	1	101 29
+114	157	0.8	1	110 47
+115	127	0.8	1	100 27
+116	149	0.8	1	116 33
+117	1874	0.8	1	1770 104
+118	118	0.8	1	102 16
+119	146	0.8	1	101 45
+120	154	0.8	1	95 59
+121	193	0.8	1	103 90
+122	112	0.8	1	72 40
+123	125	0.8	1	88 37
+124	437	0.8	1	397 40
+125	2623	0.8	1	2522 101
+126	3094	0.8	1	3001 93
+127	238	0.8	1	189 49
+128	2074	0.8	1	1982 92
+129	1427	0.8	1	1318 109
+130	507314	0.8	1	498944 8370
+131	11401	0.8	1	10778 623
+132	12119	0.8	1	11719 400
+133	3685	0.8	1	3519 166
+134	19594	0.8	1	18958 636
+135	7177	0.8	1	6779 398
+136	10111	0.8	1	9654 457
+137	10572	0.8	1	8714 1858
+138	14519	0.8	1	12318 2201
+139	12064	0.8	1	8398 3666
+140	9186	0.8	1	4618 4568
+141	32772	0.8	1	18417 14355
+142	12535	0.8	1	5055 7480
+143	31275	0.8	1	12949 18326
+144	46538	0.8	1	14167 32371
+145	33584	0.8	1	10378 23206
+146	19981	0.8	1	5597 14384
+147	19554	0.8	1	5312 14242
+148	24389	0.8	1	8073 16316
+149	4711	0.8	1	1976 2735
+150	27416	0.8	1	11780 15636
+
+RUN STATISTICS FOR INPUT FILE: /mnt/xomics/remcovc/raw_data_recognition_2020-03/umi_extracted/012_GACGATCT-ATGCACGA_L004_R3.processed.fastq.gz
+=============================================
+52971273 sequences processed in total
+
+Total number of sequences analysed for the sequence pair length validation: 52971273
+
+Number of sequence pairs removed because at least one read was shorter than the length cutoff (20 bp): 1290338 (2.44%)
