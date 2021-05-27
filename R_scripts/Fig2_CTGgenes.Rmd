@@ -1,0 +1,95 @@
+---
+title: "Fig2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggrepel)
+library(cowplot)
+```
+
+## Fig 2
+
+### loading data 
+```{r}
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/Analyses_rnaseq_recognition/results/mixed_effect_models/htseq_manual/samples.RDATA")
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/model_values_all.RData")
+#this Voom object features counts with a cutoff of 50 based on the Visit (CBT) design
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/v_visit.RDATA")
+
+hgnc_symbol <- read.table("Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/Analyses_rnaseq_recognition/metadata/ENSG_geneSymbol2.txt", sep =",", header=TRUE)
+
+```
+### A volcano plot 
+```{r}
+
+df <- data.frame(p.value = model_values_all[["V2Mode"]][,"p.val"], FDR = model_values_all[["V2Mode"]][,"FDR"], effect = model_values_all[["V2Mode"]][,"Estimate"])
+
+ggplot(df, aes(x = effect*100, y = -log10(p.value)))+
+      geom_label_repel(label = ifelse(model_values_all[["V2Mode"]][,"ENSG"] %in%  model_values_all[["V2Mode"]][,"ENSG"][order(model_values_all[["V2Mode"]][,"p.val"])][1:5], model_values_all[["V2Mode"]][,"hgnc_symbol"], ""), max.overlaps = 100, min.segment.length = 0.01, force = 10, color = "black", size = 3, nudge_y = 0.25, segment.size = 0.25) +
+      geom_point(size= 1, col = ifelse(df$FDR < 0.05, "black","grey"))+
+      xlab("Effect size (logCPM/100 CTGs)")+
+      ylab("-10log(p-value)")+
+      theme(legend.position = "none", aspect.ratio = 4/3)  +
+      scale_x_continuous(limits = c(-0.6, 0.6), 
+                         breaks = seq(-0.6, 0.6, 0.15), 
+                         labels = c(scales::comma(seq(-0.6, -0.15, 0.15), accuracy = c(0.01)), scales::comma(0, accuracy = c(1)), scales::comma(seq(0.15, 0.6, 0.15), accuracy = c(0.01))),
+                         sec.axis = dup_axis(breaks = derive(), labels = derive(), name = NULL))+
+      scale_y_continuous(limits = c(0, 7), breaks = seq(0, 7, 1,), 
+                         sec.axis = dup_axis(breaks = derive(), labels = derive(), name = NULL))+
+   theme_classic()
+                     
+ggsave(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/Fig2_CTGgenes.png", width = 6, height = 8)
+
+# The number of genes with an FDR > 0.05
+sum(model_values_all[["V2Mode"]][,"FDR"] < 0.05)
+# of which with a positive correlation
+sum(model_values_all[["V2Mode"]][,"FDR"] < 0.05 & model_values_all[["V2Mode"]][,"Estimate"] > 0 )
+# of which with a negative correlation
+sum(model_values_all[["V2Mode"]][,"FDR"] < 0.05 & model_values_all[["V2Mode"]][,"Estimate"] < 0 )
+
+#write table with IDs to use for gene enrichment analysis
+
+CTGhits <- model_values_all[["V2Mode"]][model_values_all[["V2Mode"]][,"FDR"] < 0.05,]
+CTGhits <- CTGhits[rev(order(abs(CTGhits[,"Estimate"]))),][1:100,"ENSG"]
+
+write.table(CTGhits,
+            file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/cytoscape/CTG_FDR005top100E.csv", 
+          quote = FALSE, 
+          row.names= FALSE,
+          col.names= FALSE
+   )
+```
+
+
+### B example plots
+```{r}
+
+gene_plots <- list()
+for (ENSG_ID in model_values_all[["V2Mode"]][,"ENSG"][order(model_values_all[["V2Mode"]][,"p.val"])][1:5]){
+
+outcome <- "V2Mode"
+      # for V2Mode, create a scatter plot with expression level vs CTG-repeat length
+ df2 <- data.frame(as.numeric(samples[,outcome][!is.na(samples[,outcome])]), v$E[ENSG_ID,], samples[,"Visit"][!is.na(samples[,outcome])], samples[,"PatientID"][!is.na(samples[,outcome])])
+names(df2) <- c(outcome,"counts","Visit","PatientID")
+df2 <- df2[order(df2$Visit),]
+gene_plots[[ENSG_ID]] <- ggplot(df2, aes_string(x=outcome, y="counts",group="PatientID")) +
+        ggtitle(paste(hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id %in% ENSG_ID])) +
+        xlab("CTG repeat length") +
+        ylab("logCPM") +
+        geom_point(size = 1.5, col=ifelse(df2$Visit == "V2", "blue","red")) +
+        scale_x_continuous(breaks=seq(0,1000,200), 
+                           limits = c(0,1000),
+                           sec.axis = dup_axis(breaks = derive(), labels = NULL, name = NULL))+
+        scale_y_continuous(sec.axis = dup_axis(breaks = derive(), labels = NULL, name = NULL))+
+        theme_classic() +
+        theme(panel.grid.major.x = element_line(size = 0.25, color = "grey"))+
+        theme(panel.grid.major.y = element_line(size = 0.25, color = "grey"))
+}
+
+plots <- plot_grid(plotlist = gene_plots, ncol = 1 )
+ggsave(plots, file ="Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/Fig2B_CTGplots.png", height = 20, width = 8, dpi = 600 )
+
+```

@@ -1,0 +1,95 @@
+---
+title: "Fig7"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggrepel)
+library(cowplot)
+```
+
+## Fig 7
+
+
+```{r}
+hgnc_symbol <- read.table("Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/Analyses_rnaseq_recognition/metadata/ENSG_geneSymbol2.txt", sep =",", header=TRUE)
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/model_values_all.RData")
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/v_visit.RDATA")
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/Analyses_rnaseq_recognition/results/mixed_effect_models/htseq_manual/samples.RDATA")
+
+```
+
+```{r}
+df <- data.frame(p.value  = model_values_all[["DM1ActivC"]][,"p.val"],
+                 FDR = model_values_all[["DM1ActivC"]][,"FDR"], 
+                 effect = model_values_all[["DM1ActivC"]][,"Estimate"])
+
+ggplot(df, aes(x = effect, y = -log10(p.value)))+
+      geom_point(size= 1, col = ifelse(df$FDR < 0.25, "grey53","grey"))+
+      geom_label_repel(label = ifelse(model_values_all[["DM1ActivC"]][,"ENSG"] %in%  model_values_all[["DM1ActivC"]][,"ENSG"][order(model_values_all[["DM1ActivC"]][,"p.val"])][1:5],
+                                      ifelse(model_values_all[["DM1ActivC"]][,"hgnc_symbol"] == "", model_values_all[["DM1ActivC"]][,"ENSG"], model_values_all[["DM1ActivC"]][,"hgnc_symbol"]),
+                                      ""), 
+                       max.overlaps = 100, min.segment.length = 0.1, force = 10, color = "black", size = 3, nudge_y = 0.005, segment.size = 0.25)+
+      xlab("Effect size (logCPM/unit)")+
+      ylab("-10log(p-value)")+
+      theme(legend.position = "none", 
+            aspect.ratio = 4/3)  +
+      scale_x_continuous(limits = c(-0.05, 0.05), 
+                        breaks = c(seq(-0.05, 0.05, 0.025)),
+                        labels = c(scales::comma(seq(-0.05, -0.025, 0.025), accuracy = c(0.001)), scales::comma(0, accuracy = c(1)), scales::comma(seq(0.025, 0.05, 0.025), accuracy = c(0.001))),
+                         sec.axis = dup_axis(breaks = derive(), labels = derive(), name = NULL))+
+      scale_y_continuous(limits = c(0, 4), 
+                         breaks = seq(0, 4, 1),
+                         sec.axis = dup_axis(breaks = derive(), labels = derive(), name = NULL))+
+      theme_classic()
+
+ggsave(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/Fig7A_DMac.png", width = 6, height = 8)
+
+µ# The number of genes with an FDR > 0.05
+sum(model_values_all[["DM1ActivC"]][,"FDR"] < 0.25)
+# of which with a positive correlation
+sum(model_values_all[["DM1ActivC"]][,"FDR"] < 0.25 & model_values_all[["DM1ActivC"]][,"Estimate"] > 0 )
+# of which with a negative correlation
+sum(model_values_all[["DM1ActivC"]][,"FDR"] < 0.25 & model_values_all[["DM1ActivC"]][,"Estimate"] < 0 )
+
+DM1ActivChits <- model_values_all[["DM1ActivC"]][model_values_all[["DM1ActivC"]][,"p.val"] < 0.05,]
+DM1ActivChits <- DM1ActivChits[rev(order(abs(DM1ActivChits[,"Estimate"]))),][1:100,"ENSG"]
+
+write.table(DM1ActivChits,
+            file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/cytoscape/DM1ActivC_p005top100E.csv", 
+          quote = FALSE, 
+          row.names= FALSE,
+          col.names= FALSE
+   )
+
+```
+
+
+```{r}
+gene_plots <- list()
+for (ENSG_ID in model_values_all[["DM1ActivC"]][,"ENSG"][order(model_values_all[["DM1ActivC"]][,"p.val"])][1:5]){
+
+df2 <- data.frame(samples[,"Visit"],v[["E"]][ENSG_ID,], samples[,"PatientID"], samples[,"DM1ActivC"])
+names(df2) <- c("Visit","counts","PatientID","DM1ActivC")
+
+gene_plots[[ENSG_ID]] <- ggplot(df2, aes_string(x="DM1ActivC", y="counts", group="PatientID")) + ggtitle(hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id==ENSG_ID])+
+        xlab("DM1ActivC score") +
+        ylab("logCPM") +
+        geom_path(arrow=arrow(type="closed",length=unit(0.25,"cm"))) +
+        geom_point(colour= ifelse(df2$Visit == "V2", "blue","red")) +
+        scale_x_continuous(limits = c(0, 100),
+           breaks=seq(0 , 100, 20),
+           sec.axis = dup_axis(breaks = derive(), labels = NULL, name = NULL))+
+          scale_y_continuous(sec.axis = dup_axis(breaks = derive(), labels = NULL, name = NULL))+
+        theme_classic() +
+        theme(panel.grid.major.x = element_line(size = 0.25, color = "grey"))+
+        theme(panel.grid.major.y = element_line(size = 0.25, color = "grey")
+)
+}
+
+plots <- plot_grid(plotlist = gene_plots, ncol = 1 )
+ggsave(plots, file ="Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/Fig7B_plots.png", height = 20, width = 8 , dpi = 600)
+
+```

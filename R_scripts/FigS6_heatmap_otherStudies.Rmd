@@ -1,0 +1,82 @@
+---
+title: "FigS6_heatmap_other_studies"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(readxl)
+library(tidyverse)
+library(cowplot)
+library(stats)
+library(gplots)
+```
+
+## Fig S6
+
+## loading data 
+```{r}
+hgnc_symbol <- read.table("Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/Analyses_rnaseq_recognition/metadata/ENSG_geneSymbol2.txt", sep =",", header=TRUE)
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/model_values_all.RData")
+Sznajder_blood <- read.csv(file = "Z:/Analysis_projects/GSE138691/lm_fit_disease_values.csv", sep = " ")
+Charlet_heart <- read.csv(file = "Z:/Knowledge_base/DM_T_003/lm_fit_disease_values.csv", sep = " ")
+Wang_brain <- read.csv(file = "Z:/Knowledge_base/DM_T_041/lm_fit_disease_values.csv", sep = " ")
+Wang_MBNLinf <- read_excel("Z:/Knowledge_base/DM_T_007/Kallisto_table_s5_ddy432.xlsx")
+
+model_values_S2 <- read.csv(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/TableS2_effects_105genes.csv", sep = ",")
+
+
+```
+
+### Data prep
+```{r}
+Wang_MBNLinf <- inner_join(hgnc_symbol, Wang_MBNLinf, by = c("hgnc_symbol" = "Gene"))
+colnames(Wang_MBNLinf)[colnames(Wang_MBNLinf) == "ensembl_gene_id"] <- "ENSG"
+colnames(Wang_MBNLinf)[colnames(Wang_MBNLinf) == "Correlation to MBNLinf"] <- "Estimate"
+
+studies <- list("Sznajder_blood" = Sznajder_blood, 
+                "Charlet_heart" = Charlet_heart,
+                "Wang_brain" = Wang_brain,
+                "Wang_MBNLinf" = Wang_MBNLinf 
+)
+```
+
+## heatmap 105 genes
+
+```{r}
+study_CBTCTG <- list()
+for (study in names(studies)){
+study_CBTCTG[[study]] <- studies[[study]][studies[[study]][,"ENSG"] %in% model_values_S2[,"ENSG"],c("ENSG","Estimate")]
+}
+plot_df <- full_join(model_values_S2, study_CBTCTG[["Charlet_heart"]], by = c("ENSG"))
+plot_df <- full_join(plot_df, study_CBTCTG[["Wang_brain"]], by = c("ENSG"), suffix = c("_Charlet_heart","_Wang_brain")) 
+plot_df <- full_join(plot_df, study_CBTCTG[["Wang_MBNLinf"]], by = c("ENSG")) 
+plot_df <- full_join(plot_df, study_CBTCTG[["Sznajder_blood"]], by = c("ENSG"), suffix = c("_Wang_MBNLinf","_Sznajder_blood")) 
+
+df <- plot_df[, c("CTGRepeatLength_Effect", "Estimate_Charlet_heart","Estimate_Wang_brain", "Estimate_Wang_MBNLinf", "Estimate_Sznajder_blood" )]    
+
+colnames(df) <- gsub("_Effect|Estimate_","", colnames(df))
+
+df <- scale(df, center = FALSE)
+rownames(df) <- plot_df$hgnc_symbol
+dfs<- list()
+dfs[["dfpos"]] <- df[df[,"CTGRepeatLength"] > 0 ,]
+dfs[["dfneg"]] <- df[df[,"CTGRepeatLength"] < 0 ,]
+
+for (plot in c("dfpos", "dfneg")){
+jpeg(filename = paste0("Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/FigS6_heatmap_studies_int", plot,".jpeg"), width = 750, height = 10*length(dfs[[plot]]), quality = 600)
+heatmap.2(as.matrix(dfs[[plot]]),
+          col = redblue(100),
+          dendrogram = c("none"),
+          key = FALSE,
+          trace = "none",
+          cexRow = 2,
+          cexCol = 2.5,
+          srtCol = 45,
+          na.color = "grey43",
+          margins = c(20,20))
+          
+dev.off()
+}
+```

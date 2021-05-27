@@ -1,0 +1,77 @@
+---
+title: "Fig1_outcomes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Expression tables
+
+### Load data
+```{r}
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/model_values_all.RData")
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/v_visit.RDATA")
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/Analyses_rnaseq_recognition/outcome_types.RData")
+
+```
+
+## Table S1
+
+```{r}
+model_values_S1 <- list()
+for (outcome in c("Visit","V2Mode", "int_CBT_scaled_mean_outcome",unlist(outcome_types))){
+model_values_S1[[outcome]] <-  model_values_all[[outcome]][, c("Estimate","p.val","FDR")]
+}
+
+names(model_values_S1)[names(model_values_S1) %in% c("Visit", "V2Mode","int_CBT_scaled_mean_outcome")] <- c("CBT","CTGRepeatLength","MeanClinImprov")
+
+model_values_S1 <- do.call(cbind, model_values_S1)
+model_values_S1 <- cbind(model_values_all[["Visit"]][,c("ENSG", "hgnc_symbol")], model_values_S1)
+colnames(model_values_S1) <- gsub(".Estimate" ,"_Effect", colnames(model_values_S1))
+colnames(model_values_S1) <- gsub(".p.val" ,"_p.val", colnames(model_values_S1))
+colnames(model_values_S1) <- gsub(".FDR" ,"_FDR", colnames(model_values_S1))
+
+write.csv(model_values_S1,          
+          quote = FALSE,
+          row.names= FALSE,
+          file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/TableS1_effects.csv"
+)
+
+```
+
+## tables to send to ReCognitION
+
+```{r}
+
+write.csv(model_values_all[["V2Mode"]][model_values_all[["V2Mode"]][,"FDR"] < 0.05, 
+                                       c("ENSG", "hgnc_symbol","Estimate","p.val","FDR")],
+          quote = FALSE,
+          row.names= FALSE,
+          file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/hit_lists/hits_CTG_repeat.csv"
+)
+
+write.csv(model_values_all[["int_CBT_scaled_mean_outcome"]][model_values_all[["int_CBT_scaled_mean_outcome"]][,"FDR"] < 0.25, 
+                                                         c("ENSG", "hgnc_symbol","Estimate","p.val","FDR")],
+          quote = FALSE,
+          row.names= FALSE,
+          file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/hit_lists/hits_response.csv"
+)
+
+CTG_CBT_hits <- intersect(model_values_all[["int_CBT_scaled_mean_outcome"]][,"ENSG"][model_values_all[["int_CBT_scaled_mean_outcome"]][,"FDR"] < 0.25], model_values_all[["V2Mode"]][,"ENSG"][model_values_all[["V2Mode"]][,"FDR"] < 0.05])
+
+CTG_CBT_hits <- cbind(model_values_all[["V2Mode"]][model_values_all[["V2Mode"]][,"ENSG"] %in% CTG_CBT_hits, 
+                                       c("ENSG", "hgnc_symbol","Estimate","p.val","FDR")],
+                     model_values_all[["int_CBT_scaled_mean_outcome"]][model_values_all[["int_CBT_scaled_mean_outcome"]][,"ENSG"] %in% CTG_CBT_hits, c("Estimate","p.val","FDR")]
+   )
+colnames(CTG_CBT_hits) <- c("ENSG", "hgnc_symbol","Estimate_CTG","p.val_CTG","FDR_CTG","Estimate_resp","p.val_resp","FDR_resp")
+
+write.csv(CTG_CBT_hits,
+         quote = FALSE,
+         row.names= FALSE,
+         file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/hit_lists/hits_CTG_response.csv"
+)
+
+```

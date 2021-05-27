@@ -1,0 +1,132 @@
+---
+title: "Fig6"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggrepel)
+library(cowplot)
+```
+
+## Fig 6
+
+
+```{r}
+hgnc_symbol <- read.table("Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/Analyses_rnaseq_recognition/metadata/ENSG_geneSymbol2.txt", sep =",", header=TRUE)
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/model_values_all.RData")
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/v_visit.RDATA")
+load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/Analyses_rnaseq_recognition/results/mixed_effect_models/htseq_manual/samples.RDATA")
+
+```
+
+```{r}
+df <- data.frame(p.value = model_values_all[["int_CBT_scaled_mean_outcome"]][,"p.val"],
+                   FDR = model_values_all[["int_CBT_scaled_mean_outcome"]][,"FDR"], 
+                 effect = model_values_all[["int_CBT_scaled_mean_outcome"]][,"Estimate"])
+
+ggplot(df, aes(x = effect, y = -log10(p.value)))+
+      geom_point(size= 1, col = ifelse(df$FDR < 0.25, "grey53","grey"))+
+      geom_label_repel(label = ifelse(model_values_all[["int_CBT_scaled_mean_outcome"]][,"ENSG"] %in%  model_values_all[["int_CBT_scaled_mean_outcome"]][,"ENSG"][order(model_values_all[["int_CBT_scaled_mean_outcome"]][,"p.val"])][1:5],
+                                      ifelse(model_values_all[["int_CBT_scaled_mean_outcome"]][,"hgnc_symbol"] == "", model_values_all[["int_CBT_scaled_mean_outcome"]][,"ENSG"], model_values_all[["int_CBT_scaled_mean_outcome"]][,"hgnc_symbol"]),
+                                      ""), 
+                       max.overlaps = 10, min.segment.length = 0.01, force = 50, color = "black", size = 3, nudge_y = 0.2, segment.size = 0.25)+
+      xlab("Effect size (logCPM/std.dev)")+
+      ylab("-10log(p-value)")+
+      theme(legend.position = "none", 
+            aspect.ratio = 4/3)  +
+      scale_x_continuous(limits = c(-3, 3), 
+                        breaks = c(seq(-3,3,1)) , 
+                        labels = c(scales::comma(seq(-3,-1,1), accuracy = c(0.01)), scales::comma(0, accuracy = c(1)), scales::comma(seq(1, 3,1), accuracy = c(0.01))),
+                        sec.axis = dup_axis(breaks = derive(), labels = derive(), name = NULL))+
+      scale_y_continuous(limits = c(0, 5), 
+                         breaks = seq(0, 5, 1), 
+                         sec.axis = dup_axis(breaks = derive(), labels = derive(), name = NULL))+
+   theme_classic()
+  
+ggsave(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/Fig6_INTgenes.png", width = 6, height = 8)
+
+# The number of genes with an FDR > 0.05
+sum(model_values_all[["int_CBT_scaled_mean_outcome"]][,"FDR"] < 0.25)
+# of which with a positive correlation
+sum(model_values_all[["int_CBT_scaled_mean_outcome"]][,"FDR"] < 0.25 & model_values_all[["int_CBT_scaled_mean_outcome"]][,"Estimate"] > 0 )
+# of which with a negative correlation
+sum(model_values_all[["int_CBT_scaled_mean_outcome"]][,"FDR"] < 0.25 & model_values_all[["int_CBT_scaled_mean_outcome"]][,"Estimate"] < 0 )
+
+#write table with IDs to use for gene enrichment analysis
+int_CTG_resphits <- model_values_all[["int_CBT_scaled_mean_outcome"]][model_values_all[["int_CBT_scaled_mean_outcome"]][,"p.val"] < 0.05,]
+int_CTG_resphits <- int_CTG_resphits[rev(order(abs(int_CTG_resphits[,"Estimate"]))),][1:100,"ENSG"]
+
+write.table(int_CTG_resphits,
+            file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/cytoscape/int_CTG_resp_p005top100E.csv", 
+          quote = FALSE, 
+          row.names= FALSE,
+          col.names= FALSE
+   )
+```
+
+#change in expression vs responderness
+
+```{r}
+gene_plots <- list()
+for (ENSG_ID in model_values_all[["int_CBT_scaled_mean_outcome"]][,"ENSG"][order(model_values_all[["int_CBT_scaled_mean_outcome"]][,"p.val"])][1:5]){
+
+dE <- list()
+for (patient in unique(samples$PatientID)){
+dE[[patient]]  <- v$E[, colnames(v$E) %in% paste0(patient, "_V4")] - v$E[, colnames(v$E) %in% paste0(patient, "_V2")]
+} 
+dE <- do.call(cbind, dE)
+colnames(dE) <- unique(samples$PatientID)
+   
+df2 <- data.frame(dCounts = dE[ENSG_ID,],
+                  response = as.numeric(unique(samples[,"scaled_mean_outcome"])))
+
+gene_plots[[ENSG_ID]] <- ggplot(df2,  aes_string(x="response", y="dCounts")) +  ggtitle(paste(hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id==ENSG_ID]))+
+   geom_point() +
+   xlab("Scaled mean improvement") +
+   ylab("Change in logCPM") +
+   geom_hline(yintercept=0, col = "red")+
+   geom_vline(xintercept=0, col = "red")+
+   scale_x_continuous(lim = c(-0.5, 1.5),
+                      sec.axis = dup_axis(breaks = derive(), labels = NULL, name = NULL))+
+   scale_y_continuous(lim = -plyr::round_any(max(abs(df2$dCount)), 0.5, f = ceiling), plyr::round_any(max(abs(df2$dCount)), 0.5, f = ceiling),
+                     sec.axis = dup_axis(breaks = derive(), labels = NULL, name = NULL))+
+   ylim(-plyr::round_any(max(abs(df2$dCount)), 0.5, f = ceiling), plyr::round_any(max(abs(df2$dCount)), 0.5, f = ceiling))+
+  theme_classic() +
+  theme(panel.grid.major.x = element_line(size = 0.25, color = "grey"))+
+  theme(panel.grid.major.y = element_line(size = 0.25, color = "grey"))
+}
+
+plots <- plot_grid(plotlist = gene_plots, ncol = 1 )
+ggsave(plots, file ="Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/Fig6B_INTDeltaPlots.png", height = 20, width = 8 , dpi = 600)
+
+```
+
+#V2 vs V4 plots with color label
+
+```
+gene_plots <- list()
+for (ENSG_ID in model_values_all[["int_CBT_scaled_mean_outcome"]][,"ENSG"][order(model_values_all[["int_CBT_scaled_mean_outcome"]][,"p.val"])][1:5]){
+
+df2 <- data.frame(samples[,"Visit"],v[["E"]][ENSG_ID,], samples[,"PatientID"], samples[,"scaled_mean_outcome"])
+names(df2) <- c("Visit","counts","PatientID","int_CBT_scaled_mean_outcome")
+df2 <- df2[order(df2$Visit),]
+
+colorbreaks <- unique(c(seq(-0.25,-0.1,0.01),seq(-0.1,0.1,0.01),seq(0.1,0.75,0.05),seq(0.75,1.5,0.1)))
+df2$color <- colorRampPalette(c("red1","coral1","grey55","cadetblue3", "blue3"), 
+                    bias = 1)(length(colorbreaks))[cut(as.numeric(df2[,"int_CBT_scaled_mean_outcome"]), 
+                    breaks = colorbreaks, include.lowest = TRUE)]
+
+gene_plots[[ENSG_ID]] <-ggplot(df2,  aes_string(x="Visit", y="counts",group="PatientID")) +  ggtitle(paste(hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id==ENSG_ID]))+
+   xlab("") +
+   ylab("logCPM") +
+   geom_path(col= df2$color, size = 1, arrow=arrow(type="closed",length=unit(0.25,"cm"))) + 
+   geom_point() +
+   scale_x_discrete(expand = c(0.1,0), labels = c("Baseline","10 Mo. CBT"))
+}
+
+plots <- plot_grid(plotlist = gene_plots, ncol = 1 )
+ggsave(plots, file ="Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Figs_for_paper/Fig6B_INTplots.png", height = 20, width = 8 , dpi = 600)
+
+```
