@@ -1,0 +1,227 @@
+---
+title: "Wilcox_tests_other_studies"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(tidyverse)
+library(edgeR)
+library(factoextra)
+library(matrixStats)
+library(matrixTests)
+```
+
+## loading data 
+```{r}
+#Load a table with hgcn symbols and corresponding Ensembl geneIDs
+hgnc_symbol <- read.table("Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/metadata/ENSG_geneSymbol.txt", sep =",", header=TRUE)
+
+
+```
+
+## Sznajder_blood, GSE138691
+
+```{r}
+# load counts from HTSeq
+counts <- lapply(list.files(path = "Z:/Knowledge_base/DM_T_043/counts", recursive = TRUE,
+                            pattern = "counts.txt$", 
+                            full.names = TRUE), read.table, sep = "\t", header = FALSE)
+
+# bind the gene column of the first count table to the count columns of all tables to generate a table with gene names and counts
+counts <- cbind(as.data.frame(counts[1])[1], as.data.frame(lapply(counts,function(x) bind_cols(x[2])))) 
+
+# Set the row names of the count table to the gene names
+row.names(counts) <- counts[,1]
+
+# Remove the last five entries of the count tables (with e.g. no feature regions and ambiguous alignment) and the gene name row
+counts <- counts[1:58735,-1]
+
+# Include sample names as column names 
+colnames(counts) <- gsub("_Aligned.out.bam.counts.txt","",list.files(path = "Z:/Knowledge_base/DM_T_043/counts", recursive = TRUE,
+                            pattern = "counts.txt$", 
+                            full.names = FALSE))
+
+# create sample annotation
+samples <- data.frame(c(colnames(counts)),c("ctrl","ctrl","DM1","DM1","DM1","ctrl","ctrl","DM1","DM1","DM1","ctrl","ctrl"))
+colnames(samples) <- c("sample","disease")
+rownames(samples) <- samples$sample
+
+# make dge objext
+dge<- DGEList(counts = counts, lib.size = colSums(counts),
+              norm.factors = rep(1,ncol(counts)), samples = rownames(samples),
+              group = samples[,"disease"], genes = rownames(counts), remove.zeros = FALSE)
+dge <- dge[filterByExpr(dge, design = NULL, group = samples[,"disease"], lib.size = NULL, min.count = 50),,keep.lib.sizes=FALSE]
+dge <- calcNormFactors(dge)
+
+# normalize with Limma-Voom
+design <- model.matrix(~samples[,"disease"][!is.na(samples[,"disease"])])
+colnames(design) <- c("(intercept)","disease")
+v <- voom(dge[,!is.na(samples[,"disease"])],design, plot=TRUE)
+
+# perform wilcoxon test
+wilcox<- row_wilcoxon_twosample(v$E[,colnames(v$E) %in% samples$sample[samples$disease == "DM1"]],
+                            v$E[,colnames(v$E) %in% samples$sample[samples$disease == "ctrl"]],
+                            "two.sided",
+                            exact = FALSE)
+
+# add gene names
+rownames(wilcox) <- v$genes[,1]
+wilcox[,"hgnc_symbol"] <- hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id %in% rownames(wilcox)]
+
+# add mean difference
+wilcox$meandiff <- rowMeans(v$E[,colnames(v$E) %in% samples$sample[samples$disease == "DM1"]]) -                            rowMeans(v$E[,colnames(v$E) %in% samples$sample[samples$disease == "ctrl"]]) 
+
+# export
+write.table(wilcox, file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/other_studies/wilcox_DM1_GSE138691_values.csv", sep=",")
+
+#failsafe
+rm(counts)
+rm(wilcox)
+```
+## Charlet_heart, GSE85984
+
+```{r}
+#load HTSeq counts
+counts <- lapply(list.files(path = "Z:/Knowledge_base/DM_T_003/", recursive = TRUE,
+                            pattern = "pa_sorted.txt$", 
+                            full.names = TRUE), read.table, sep = "\t", header = FALSE)
+
+# bind the gene column of the first count table to the count columns of all tables to generate a table with gene names and counts
+counts <- cbind(as.data.frame(counts[1])[1], as.data.frame(lapply(counts,function(x) bind_cols(x[2])))) 
+
+# Set the row names of the count table to the gene names
+row.names(counts) <- counts[,1]
+
+# Remove the last five entries of the count tables (with e.g. no feature regions and ambiguous alignment) and the gene name row
+counts <- counts[,-1]
+counts <- counts[rownames(counts) %in% hgnc_symbol$ensembl_gene_id,]
+
+# Include sample names as column names 
+colnames(counts) <- gsub("_.*","",list.files(path = "Z:/Knowledge_base/DM_T_003", recursive = TRUE,
+                                        pattern = "pa_sorted.txt$", 
+                                        full.names = FALSE))
+# load metadata
+samples <- data.frame(c(colnames(counts)),c("ctrl","ctrl","ctrl","DM1","DM1","DM1"))
+
+colnames(samples) <- c("sample","disease")
+rownames(samples) <- samples$sample
+
+# make dge object and filter low counts
+dge<- DGEList(counts = counts, lib.size = colSums(counts),
+              norm.factors = rep(1,ncol(counts)), samples = rownames(samples),
+              group = samples[,"disease"], genes = rownames(counts), remove.zeros = FALSE)
+dge <- dge[filterByExpr(dge, design = NULL, group = samples[,"disease"], lib.size = NULL, min.count = 50),,keep.lib.sizes=FALSE]
+dge <- calcNormFactors(dge)
+
+# normalize with Limma-Voom
+design <- model.matrix(~samples[,"disease"][!is.na(samples[,"disease"])])
+colnames(design) <- c("(intercept)","disease")
+v <- voom(dge[,!is.na(samples[,"disease"])],design, plot=TRUE)
+
+#perform wilcoxon on normalized counts
+wilcox<- row_wilcoxon_twosample(v$E[,grep("GSM1656436|GSM1656437|GSM1656438", colnames(v$E))],
+                            (v$E[,grep("GSM1656433|GSM1656434|GSM1656435", colnames(v$E))]),
+                            "two.sided",
+                            exact = FALSE)
+
+#add gene names
+rownames(wilcox) <- v$genes[,1]
+wilcox[,"hgnc_symbol"] <- hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id %in% rownames(wilcox)]
+
+#add mean difference
+wilcox$meandiff <- rowMeans(v$E[,grep("GSM1656436|GSM1656437|GSM1656438", colnames(v$E))]) -                            rowMeans(v$E[,grep("GSM1656433|GSM1656434|GSM1656435", colnames(v$E))])
+
+#export
+write.table(wilcox, file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/other_studies/wilcox_DM1_003_values.csv", sep=",")
+
+#failsafe
+rm(counts)
+rm(wilcox)
+
+```
+
+## Otero_brain
+```{r}
+#load Kallisto counts and fix names
+DM_T_041_kallisto <- read_excel("Z:/Knowledge_base/DM_T_041/Kallisto_DM1-s2.0-S2211124720316235-mmc6.xlsx")
+colnames(DM_T_041_kallisto)[-1] <- paste0(colnames(DM_T_041_kallisto)[-1] , "_T041")
+colnames(DM_T_041_kallisto) <- gsub(" ","_",colnames(DM_T_041_kallisto))
+
+# extract sample count columns
+counts <- data.frame(DM_T_041_kallisto[,grep("DM1|Unaff",colnames(DM_T_041_kallisto))])
+
+# turn into matrix, fix names
+counts <- matrix(unlist(counts), ncol = ncol(counts), nrow = nrow(counts))
+colnames(counts) <- colnames(DM_T_041_kallisto)[grep("DM1|Unaff",colnames(DM_T_041_kallisto))]
+rownames(counts) <- DM_T_041_kallisto$Gene
+
+#log transform
+counts <- log(counts+0.5)
+
+#remove gene names with only numbers
+counts <- counts[grepl("\\D", rownames(counts)),]
+
+#perform wilcoxon test
+wilcox <- row_wilcoxon_twosample(counts[,grep("DM1", colnames(counts))],
+                            (counts[,grep("Unaff", colnames(counts))]),
+                            "two.sided",
+                            exact = FALSE)
+
+#add gene names
+wilcox["hgnc_symbol"] <- rownames(counts)
+
+#add mean difference
+wilcox$meandiff <- rowMeans(counts[rownames(counts) %in% wilcox$hgnc_symbol, grep("DM1", colnames(counts))]) -                            rowMeans(counts[rownames(counts) %in% wilcox$hgnc_symbol, grep("Unaff", colnames(counts))])
+
+#export
+write.table(wilcox, file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/other_studies/wilcox_DM1_041_values.csv", sep=",")
+
+#failsafe
+rm(counts)
+rm(wilcox)
+
+```
+
+
+## DMseq_tibialis
+```{r}
+# load Kallisto counts and fix column names
+DM_T_007_kallisto <- read_excel("Z:/Knowledge_base/DM_T_007/Kallisto_table_s5_ddy432.xlsx")
+colnames(DM_T_007_kallisto)[-1] <- paste0(colnames(DM_T_007_kallisto)[-1] , "_T007")
+colnames(DM_T_007_kallisto) <- gsub(" ","_",colnames(DM_T_007_kallisto))
+
+# remove ambiguous RNNN and NA genes
+DM_T_007_kallisto <- DM_T_007_kallisto[1:13463,]
+
+# Select only counts (i.e. remove correlations)
+counts <- data.frame(DM_T_007_kallisto[,grep("Tibialis",colnames(DM_T_007_kallisto))])
+
+# turn into matrix and fix col/rownames
+counts <- matrix(unlist(counts), ncol = ncol(counts), nrow = nrow(counts))
+colnames(counts) <- colnames(DM_T_007_kallisto)[grep("Tibialis", colnames(DM_T_007_kallisto))]
+rownames(counts) <- DM_T_007_kallisto$Gene
+
+#log transform counts
+counts <- log(counts+0.5)
+
+#perform wilcoxon test
+wilcox <- row_wilcoxon_twosample(counts[,grep("DM1", colnames(counts))],
+                            (counts[,grep("Control", colnames(counts))]),
+                            "two.sided",
+                            exact = FALSE)
+
+#add gene names
+wilcox["hgnc_symbol"] <- rownames(counts)
+
+#add mean difference
+wilcox$meandiff <- rowMeans(counts[rownames(counts) %in% wilcox$hgnc_symbol, grep("DM1", colnames(counts))]) -                            rowMeans(counts[rownames(counts) %in% wilcox$hgnc_symbol, grep("Control", colnames(counts))])
+
+#export
+write.table(wilcox, file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/fits_paper/other_studies/wilcox_DM1_007_values.csv", sep=",")
+
+#failsafe
+rm(counts)
+rm(wilcox)
+```

@@ -238,4 +238,6 @@ model_values_all[[model]][, !colnames(model_values_all[[model]]) %in% c("ENSG","
 }
 
 save(model_values_all, file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Fits_paper/model_values_all.RDATA")
+
+write.table(cbind(gene = hgnc_symbol$hgnc_symbol[hgnc_symbol[,"ensembl_gene_id"] %in% model_values_all[["Visit"]][,"ENSG"]], v$E), file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/Fits_paper/counts.csv", quote = FALSE )
 ```
