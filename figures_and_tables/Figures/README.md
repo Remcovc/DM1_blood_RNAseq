@@ -1,1 +1,1 @@
-Contains all the figures in high-res as have been published
+Contains all the figures of the manuscript in high resoultion
