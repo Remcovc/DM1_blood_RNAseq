@@ -4,4 +4,4 @@ Mixed_model_gene_expression.Rmd contains count normalization and linear model fi
 
 Expression_analyses_other_papers.Rmd contains the scripts used to analyse count tables from external sources
 
-Privacy-sensitive patient-data can be obtained via EGA (www.ega-archive.org) accession number ............
+Privacy-sensitive patient-data can be obtained via EGA (www.ega-archive.org) under study ID ID EGAS00001005830, accession ID EGAD00001008383
