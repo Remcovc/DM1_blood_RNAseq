@@ -1,10 +1,10 @@
 #!/bin/bash
 #parameters
-#$ -o /mnt/xomics/remcovc/mapping_quantification_recognition/for_paper/log
-#$ -e /mnt/xomics/remcovc/mapping_quantification_recognition/for_paper/log
-#$ -q all.q@narrativum.umcn.nl
+#$ -o /log_o
+#$ -e /log_e
 
-dir=/mnt/xomics/remcovc/mapping_quantification_recognition/for_paper/bams/dedup/
+#dir containing deduplicated bams
+dir=/your_dir/ 
 
 for sample in \
 001_GATACTGG-GAAGGTTC_L003 031_CCTTGTAG-TTCCAAGG_L004 \
@@ -40,7 +40,7 @@ for sample in \
 
 # infer experiment
 do
-python /mnt/home2/remcovc/bin/rseQC/RSeQC-2.6.4/scripts/infer_experiment.py \
+python $dir/bin/rseQC/RSeQC-2.6.4/scripts/infer_experiment.py \
 -i $dir/"$sample".dedup.bam \
--r /mnt/xomics/remcovc/mapping_quantification_recognition/mapping_for_proteogenomics/genome_files/hg38_genes_knownGene.bed
+-r $dir/genome_files/hg38_genes_knownGene.bed
 done
