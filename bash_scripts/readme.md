@@ -1,4 +1,4 @@
-This folder contains scripts to perform the raw data analysis that was used for statistical modelling.
+This folder contains scripts to perform the raw data analysis that was used as basis for statistical modelling.
 
 
 infer_experiment.sh 
