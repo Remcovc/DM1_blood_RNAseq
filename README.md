@@ -7,9 +7,8 @@ The folder bash_scripts
 
 The folder R_scripts
 
-   contains R scripts of statistical modelling and to create figures  
-   
-   
+   contains R scripts of statistical modelling and to create figures
+  
 
 The folder Statistical modeling results
 
