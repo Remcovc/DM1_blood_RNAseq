@@ -1,16 +1,16 @@
 This respository contains scripts to reproduce the data presented in Van Cruchten & Van As et al (2022) [link to paper]
 
-The folder bash_scripts 
+bash_scripts 
 
     contains bash scripts to perform raw data processing, generate count tables and perform alternative splicing analysis.
   
 
-The folder R_scripts
+R_scripts
 
     contains R scripts of statistical modelling and to create figures
   
 
-The folder Statistical modeling results
+Statistical modeling results
 
     contains the result tables of the statistical analyses of the RNA-seq data presented in the paper
   
