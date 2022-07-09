@@ -12,4 +12,4 @@ rmats.sh
 trim_map_dedup_count.sh 
 
    
-   was used to trim adapters etc. from the raw fastq-data, after which the reads were mapped, deduplicated and counted per gene
+    was used to trim adapters etc. from the raw fastq-data, after which the reads were mapped, deduplicated and counted per gene
