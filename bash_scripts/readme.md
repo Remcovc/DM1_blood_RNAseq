@@ -10,5 +10,6 @@ rmats.sh
     was used generate PSI counts that are analysed further in R_scripts/Figures/FigS4_PSI_CTG.R
 
 trim_map_dedup_count.sh 
+
    
    was used to trim adapters etc. from the raw fastq-data, after which the reads were mapped, deduplicated and counted per gene
