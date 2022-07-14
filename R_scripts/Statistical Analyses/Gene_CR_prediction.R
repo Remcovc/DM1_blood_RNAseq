@@ -1,0 +1,135 @@
+
+## Script created on 01/07/22, last update 14/07/2022
+## Title: Gene_CR_prediction
+## Author: Daniel van As
+
+## Here we explore the predictive value of baseline gene expression for therapy response
+
+###############
+## Libraries ##
+###############
+
+knitr::opts_chunk$set(echo = TRUE)
+library(limma)       #V 3.46.0
+library(tidyverse)   #V 1.3.1
+library(edgeR)       #V 3.32.1
+library(lmerTest)    #V 3.1-3
+
+
+######################
+## Loading datasets ##
+######################
+
+#Load a table with hgcn symbols and corresponding Ensembl geneIDs, and remove duplicate entries
+hgnc_symbol <- read.table("ENSG_geneSymbol2.txt", sep =",", header=TRUE)
+load(file = "outcome_types.RData")
+load(file = "samples.RDATA")
+
+
+# Load each counts file in a list of files. The order is the same as the samples file above (sampleNumbers_visit.txt), sample 1 to sample 54
+counts <- lapply(list.files(path = ".../counts/", 
+                            recursive = TRUE,
+                            pattern = "counts.txt$", 
+                            full.names = TRUE), 
+                 read.table, 
+                 sep = "\t", 
+                 header = FALSE)
+
+# bind the gene column of the first count table to the count columns of all tables to generate a table with gene names and counts
+counts <- cbind(as.data.frame(counts[1])[1], 
+                as.data.frame(
+                  lapply(counts, 
+                         function(x) bind_cols(x[2])))) 
+
+# Set the row names of the count table to the gene names
+row.names(counts) <- counts[,1]
+
+# Remove the last five entries of the count tables (with e.g. no feature regions and ambiguous alignment) and the gene name row
+counts <- counts[1:58735, 2:61]
+
+# Retain only counts from samples that were retained in the samples overview 
+counts <- counts[, samples$Sequencing_sample_number]
+
+# set sample names as column name in counts table
+colnames(counts) <- rownames(samples)
+
+
+#####################
+## Count filtering ##
+#####################
+
+# Here, a dge object is made based on the count files and sample information. 
+# Counts are then filtered for lowly expressed genes, where a gene is removed 
+# if it is lowly expressed (<50 reads) in both the before and after CBT group
+# (Visit=v2, before, or V4, after). 
+
+
+dge <- DGEList(counts = counts, 
+              lib.size = colSums(counts),
+              norm.factors = rep(1,ncol(counts)), 
+              samples = rownames(samples),
+              group = samples[,"Visit"], 
+              genes = rownames(counts), 
+              remove.zeros = FALSE)
+dge <- dge[filterByExpr(dge, 
+                        design = NULL, 
+                        group = samples[,"Visit"], 
+                        lib.size = NULL,
+                        min.count = 50),
+           keep.lib.sizes = FALSE]
+dge <- calcNormFactors(dge)
+
+
+#######################################
+## Gene therapy response prediction  ##
+#######################################
+
+
+## Data pre-processing
+v <- voom(dge, plot=F)
+expr <- v$E
+weights <- v$weights
+colnames(weights) <- colnames(expr)
+rownames(weights) <- rownames(expr)
+c_df <- data.frame(CR = as.numeric(samples$scaled_mean_outcome), 
+                   CTG = as.numeric(samples$V2Mode))
+rownames(c_df) <- rownames(samples)
+
+## Subset V2 measurements
+c_df <- c_df[grepl("V2", rownames(c_df)),]
+weights <- weights[,grepl("V2", colnames(weights))]
+expr <- expr[,grepl("V2", colnames(expr))]
+table(rownames(c_df) == colnames(weights))
+table(rownames(c_df) == colnames(expr))
+
+## Modeling                                                                     
+fit_list <- list()
+for (gene in rownames(v$E)){
+  fit_list[[gene]] <- lm(c_df$CR ~ c_df$CTG + expr[gene,], weights = weights[gene,])
+}
+
+## extract regression coefficients and p-values
+fit_coef <- lapply(names(fit_list), function(x) summary(fit_list[[x]])[["coefficients"]])
+names(fit_coef) <- names(fit_list)
+
+## explore significance of CTG predictor
+ctg_values <- do.call(rbind, lapply(names(fit_coef), function(x){fit_coef[[x]][2,]}))
+ctg_values <- as.data.frame(ctg_values)
+rownames(ctg_values) <- names(fit_list)
+ctg_values$FDR <- p.adjust(ctg_values$`Pr(>|t|)`, method='fdr')
+
+nrow(ctg_values[ctg_values$`Pr(>|t|)` < 0.05,])
+nrow(ctg_values[ctg_values$FDR < 0.05,])
+hist(ctg_values$`Pr(>|t|)`)
+hist(ctg_values$Estimate)
+
+## explore significance of gene predictor
+gene_values <- do.call(rbind, lapply(names(fit_coef), function(x){fit_coef[[x]][3,]}))
+gene_values <- as.data.frame(gene_values)
+rownames(gene_values) <- names(fit_list)
+gene_values$FDR <- p.adjust(gene_values$`Pr(>|t|)`, method='fdr')
+
+nrow(gene_values[gene_values$`Pr(>|t|)` < 0.05,])
+nrow(gene_values[gene_values$FDR < 0.05,])
+hist(gene_values$`Pr(>|t|)`)
+
