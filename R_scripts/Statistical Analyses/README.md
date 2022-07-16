@@ -10,3 +10,7 @@ CBT-associated, CTG-associated, Clinical Response associated, Overlap_97_associa
 Gene_CR_prediction.R Script to study the predictive value of baseline gene expression values for therapy response (based on the Compound Response variable)
 
 Gene_phenptype_cor.R Script to study the pearson correlation of the 97 candidate biomarkers with therapry response (based on delta-DM1-Activ-c and Compound Response variable)
+
+Outcomes_and_corrections.R Defines the outcomes per outcome types and generates the improvement per outcome per patient
+
+/source_files contains data that is required by the other scripts
