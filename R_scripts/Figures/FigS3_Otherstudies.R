@@ -25,7 +25,7 @@ library(psych)      #V 2.1.9
 ## Loading datasets ##
 ######################
 
-#Load a table with hgcn symbols and corresponding Ensembl geneIDs
+# Load a table with hgcn symbols and corresponding Ensembl geneIDs. This file can be found on Github: /R_scripts/Statistical Analyses/source_files/.
 hgnc_symbol <- read.table("ENSG_geneSymbol.txt", sep =",", header=TRUE)
 
 # load CTG fit results
