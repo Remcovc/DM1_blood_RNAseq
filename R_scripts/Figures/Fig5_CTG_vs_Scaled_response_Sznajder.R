@@ -66,7 +66,7 @@ df <- data.frame(
   Repeat = Repeat[,"Estimate"]*100,
   Response = Response[,"Estimate"],
   both = ifelse(Response[,"FDR"] < 0.05 & Repeat[,"FDR"] < 0.05, "yes","no"))
-pcor <- corr.test(df$Repeat[df$both == "yes"], df$Response[df$both=="yes"], method="pearson")
+pcor <- corr.test(df$Repeat, df$Response, method="pearson")
 
 # reorder so that genes significant in both are plotted on front of the others
 df <- df[order(df$both),]
@@ -125,7 +125,7 @@ df <- data.frame(
   DM1eff = Sznajder_blood[,"meandiff"],
   Response = new_fit[,"Estimate"],
   both = ifelse(CTG_fit_new[,"FDR"] < 0.05 & new_fit[,"FDR"] < 0.05, "yes","no"))
-pcor <- corr.test(df$DM1eff[df$both == "yes"], df$Response[df$both=="yes"], method="pearson")
+pcor <- corr.test(df$DM1eff, df$Response, method="pearson")
 
 # reorder so that genes significant in both are plotted on front of the others
 df <- df[order(df$both),]
