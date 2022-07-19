@@ -86,10 +86,6 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
   df2 <- data.frame(dCounts = dE[ENSG_ID,],
                     response = as.numeric(unique(samples[,"scaled_mean_outcome"])))
   pcor <- corr.test(df2$response, df2$dCounts, method="pearson")
-  pcor$p <- round(pcor$p, 4)
-  if (pcor$p < 0.0001){
-    pcor$p <- "< 0.0001"
-  }
   
   gene_plots[[ENSG_ID]] <- ggplot(df2,  aes_string(x="response", y="dCounts")) +  ggtitle(paste(hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id==ENSG_ID]))+
     geom_point() +
@@ -104,12 +100,8 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
                        limits = c(-1.5, 1.75)) +
     annotation_custom(grobTree(textGrob(
       paste0("Rho = ", round(pcor$r, 2)), 
-      x=0.6, y=0.92, just = "left",
-      gp=gpar(fontsize=14))))+
-    annotation_custom(grobTree(textGrob(
-      paste0("p = ", pcor$p), 
-      x=0.6, y=0.78, just = "left",
-      gp=gpar(fontsize=14))))+
+      x=0.55, y=0.9, just = "left",
+      gp=gpar(fontsize=16))))+
     theme(
       panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
       aspect.ratio = 0.4,
