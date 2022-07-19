@@ -98,7 +98,7 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
                        limits = c(min(df2$counts), max(df2$counts)+0.42)) +
     annotation_custom(grobTree(textGrob(
       paste0("Rho = ", round(pcor$r, 2)), 
-      x=0.05, y=0.92, just = "left",
+      x=0.05, y=0.90, just = "left",
       gp=gpar(fontsize=16))))+
     theme(
       panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
