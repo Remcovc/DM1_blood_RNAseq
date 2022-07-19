@@ -1,7 +1,7 @@
 # Original script made by R van Cruchten to visualize the association of
 # DM1-Activ-c with gene expression
 # Slight modifications by D van As for publication purposes and updated results
-# Last changes applied on 06/07/22
+# Last changes applied on 19/07/22
 
 
 ###############
@@ -86,10 +86,6 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
   names(df2) <- c("Visit","counts","PatientID","DM1ActivC")
   df2 <- df2[order(df2$Visit),]
   pcor <- corr.test(df2$DM1ActivC, df2$counts, method="pearson")
-  pcor$p <- round(pcor$p, 4)
-  if (pcor$p < 0.0001){
-    pcor$p <- "< 0.0001"
-  }
   
   gene_plots[[ENSG_ID]] <- ggplot(df2, aes_string(x="DM1ActivC", y="counts")) + ggtitle(hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id==ENSG_ID])+
     xlab("DM1-Activ-c score") +
@@ -103,12 +99,8 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
                        limits = c(min(df2$counts), max(df2$counts)+0.5)) +
     annotation_custom(grobTree(textGrob(
       paste0("Rho = ", round(pcor$r, 2)), 
-      x=0.05, y=0.92, just = "left",
-      gp=gpar(fontsize=14))))+
-    annotation_custom(grobTree(textGrob(
-      paste0("p = ", pcor$p), 
-      x=0.05, y=0.78, just = "left",
-      gp=gpar(fontsize=14))))+
+      x=0.05, y=0.90, just = "left",
+      gp=gpar(fontsize=16))))+
     theme(
       panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
       aspect.ratio = 0.4,
