@@ -1,6 +1,6 @@
 
 # Visualization of changes in DMPK expression before and after CBT
-# Script generated on 08/07/22
+# Script generated on 19/07/22
 
 
 ###############
@@ -72,11 +72,17 @@ delta_counts <- V4_counts - V2_counts
 ###############################################
 ## Check association of DMPK with CTG repeat ##
 ###############################################
-table(colnames(delta_counts) == names(CRS))
-pcor <- corr.test(delta_counts[rownames(V2_counts) == ENSG,], CTG, method="pearson")
-pcor$p <- round(pcor$p, 4)
 
-df2 <- data.frame(cbind(CTG = CTG, DMPK = delta_counts[rownames(V2_counts) == ENSG,]))
+# Obtain relevant CTG values
+CTG <- as.numeric(samples$V2Mode[samples$Visit=="V2"])
+names(CTG) <- samples$PatientID[samples$Visit=="V2"])
+CTG <- CTG[colnames(delta_counts)]
+table(colnames(delta_counts)==names(CTG))
+
+# Calculate pearson correlations and store in dataframe
+ENSG <- hgnc_symbol$ensembl_gene_id[hgnc_symbol$hgnc_symbol=="DMPK"]
+pcor <- corr.test(delta_counts[rownames(delta_counts) == ENSG,], CTG, method="pearson")
+df2 <- data.frame(cbind(CTG = CTG, DMPK = delta_counts[rownames(delta_counts) == ENSG,]))
 
 plot1 <- ggplot(df2, aes_string(x="CTG", y="DMPK")) +
   ggtitle("DMPK") +
@@ -91,11 +97,7 @@ plot1 <- ggplot(df2, aes_string(x="CTG", y="DMPK")) +
   annotation_custom(grobTree(textGrob(
     paste0("Rho = ", round(pcor$r, 2)), 
     x=0.05, y=0.95, just = "left",
-    gp=gpar(fontsize=14))))+
-  annotation_custom(grobTree(textGrob(
-    paste0("p = ", pcor$p), 
-    x=0.05, y=0.9, just = "left",
-    gp=gpar(fontsize=14))))+
+    gp=gpar(fontsize=16))))+
   labs(tag ="B") +
   theme(
     panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
@@ -140,11 +142,7 @@ plot2 <- ggplot(df2,  aes_string(x="Visit", y="counts",group="PatientID")) +
   annotation_custom(grobTree(textGrob(
     paste0("Rho = ", round(pcor$r, 2)), 
     x=0.05, y=0.95, just = "left",
-    gp=gpar(fontsize=14))))+
-  annotation_custom(grobTree(textGrob(
-    paste0("p = ", round(pcor$p, 4)), 
-    x=0.05, y=0.9, just = "left",
-    gp=gpar(fontsize=14))))+
+    gp=gpar(fontsize=16))))+
   labs(tag ="A") +
   theme(
      panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
