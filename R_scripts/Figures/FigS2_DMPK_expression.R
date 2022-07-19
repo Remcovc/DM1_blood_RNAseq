@@ -135,7 +135,7 @@ plot2 <- ggplot(df2,  aes_string(x="Visit", y="counts",group="PatientID")) +
   geom_point(col = ifelse(df2$Visit == "V2", "blue", "red")) +
   geom_path(col= "black") + 
   ylab("logCPM") +
-  xlab("Change in DMPK expression") +
+  xlab("") +
   scale_x_discrete(expand = c(0.1,0), labels = c("Baseline","10 Mo. CBT"))+ 
   scale_y_continuous(labels = label_number(accuracy = 0.1), 
                      limits = c(min(df2$counts), max(df2$counts)+0.6)) +
