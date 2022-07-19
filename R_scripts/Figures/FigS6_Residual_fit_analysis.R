@@ -1,7 +1,7 @@
 
 ## Script generated on 19/11/21 to study the impact of the correlation between
 ## CTG and Compound Response estimates on figure 5
-## Last update on 6/7/22
+## Last update on 19/7/22
 
 ###############
 ## Libraries ##
@@ -42,10 +42,6 @@ CR_res <- data.frame(lmer_fit_values)
 df2 <- data.frame("CR_effect" = new_fit$Estimate, 
 "CR_res_effect" = CR_res$scaled_response.Estimate)
 pcor <- corr.test(df2$CR_effect, df2$CR_res_effect, method="pearson")
-pcor$p <- round(pcor$p, 4)
-if (pcor$p < 0.0001){
-  pcor$p <- "< 0.0001"
-}
 
 A <- ggplot(df2, aes(x=df2[,1], y=df2[,2])) +
   xlab("Compound response effect on gene expression") + 
@@ -59,10 +55,7 @@ A <- ggplot(df2, aes(x=df2[,1], y=df2[,2])) +
   geom_vline(xintercept=0)+
   annotation_custom(grobTree(textGrob(
     paste0("Rho = ", round(pcor$r, 2)), 
-    x=0.05, y=0.95, just = "left")))+
-  annotation_custom(grobTree(textGrob(
-    paste0("p = ", pcor$p), 
-    x=0.05, y=0.9, just = "left")))+
+    x=0.05, y=0.90, just = "left", gp=gpar(fontsize=16)))+
   theme(
     panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
     aspect.ratio = 1,
@@ -95,10 +88,6 @@ df <- data.frame(
   Response = CR_res$scaled_response.Estimate, #in contrast to figure 5, estimates of residual fit are used
   both = ifelse(Response[,"FDR"] < 0.05 & Repeat[,"FDR"] < 0.05, "yes","no"))
 pcor <- corr.test(df$Repeat[df$both == "yes"], df$Response[df$both=="yes"], method="pearson")
-pcor$p <- round(pcor$p, 4)
-if (pcor$p < 0.0001){
-  pcor$p <- "< 0.0001"
-}
 
 # reorder so that genes significant in both are plotted on front of the others
 df <- df[order(df$both),]
@@ -115,12 +104,8 @@ B <- ggplot(df,  aes_string(x="Repeat", y="Response")) +
                      limits = c(-0.25,0.25)) +
   annotation_custom(grobTree(textGrob(
     paste0("Rho = ", round(pcor$r, 2)), 
-    x=0.05, y=0.95, just = "left",
-    gp=gpar(fontsize=14))))+
-  annotation_custom(grobTree(textGrob(
-    paste0("p = ", pcor$p), 
-    x=0.05, y=0.9, just = "left",
-    gp=gpar(fontsize=14))))+
+    x=0.05, y=0.90, just = "left",
+    gp=gpar(fontsize=16))))+
   labs(tag ="B") +
   theme(
     panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
