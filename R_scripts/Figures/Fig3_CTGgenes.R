@@ -84,10 +84,6 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
   names(df2) <- c(outcome,"counts","Visit","PatientID")
   df2 <- df2[order(df2$Visit),]
   pcor <- corr.test(df2$V2Mode, df2$counts, method="pearson")
-  pcor$p <- round(pcor$p, 4)
-  if (pcor$p < 0.0001){
-    pcor$p <- "< 0.0001"
-  }
   
   gene_plots[[ENSG_ID]] <- ggplot(df2, aes_string(x="V2Mode", y="counts")) +
     ggtitle(paste(hgnc_symbol$hgnc_symbol[hgnc_symbol$ensembl_gene_id %in% ENSG_ID])) +
@@ -103,11 +99,7 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
     annotation_custom(grobTree(textGrob(
       paste0("Rho = ", round(pcor$r, 2)), 
       x=0.05, y=0.92, just = "left",
-      gp=gpar(fontsize=14))))+
-    annotation_custom(grobTree(textGrob(
-      paste0("p = ", pcor$p), 
-      x=0.05, y=0.78, just = "left",
-      gp=gpar(fontsize=14))))+
+      gp=gpar(fontsize=16))))+
     theme(
       panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
       aspect.ratio = 0.4,
