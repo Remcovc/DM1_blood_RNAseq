@@ -2,7 +2,7 @@
 # Original script made by R van Cruchten to visualize differential gene 
 # expression after CBT in the OPTIMISTIC intervention group
 # Modifications by D van As for publication purposes
-# Last changes applied on 06/07/22
+# Last changes applied on 19/07/22
 
 ###############
 ## Libraries ##
@@ -104,10 +104,6 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
     annotation_custom(grobTree(textGrob(
       paste0("Rho = ", round(pcor$r, 2)), 
       x=0.05, y=0.92, just = "left",
-      gp=gpar(fontsize=14))))+
-    annotation_custom(grobTree(textGrob(
-      paste0("p = ", round(pcor$p, 4)), 
-      x=0.05, y=0.8, just = "left",
       gp=gpar(fontsize=14))))+
     theme(
       panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
