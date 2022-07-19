@@ -7,7 +7,7 @@ on figure 5
 GSEA_gprofiler.R Gene set enrichment analysis for the different identified gene sets in the ReCognitION RNA-seq analyses:
 CBT-associated, CTG-associated, Clinical Response associated, Overlap_97_associated
 
-Gene_CR_prediction.R Script to study the predictive value of baseline gene expression values for therapy response (based on the Compound Response variable)
+Gene_CR_prediction.R Script to study the predictive value of baseline gene expression values for therapy response (based on the Compound Response variable). Not published data.
 
 Gene_phenptype_cor.R Script to study the pearson correlation of the 97 candidate biomarkers with therapry response (based on delta-DM1-Activ-c and Compound Response variable)
 
