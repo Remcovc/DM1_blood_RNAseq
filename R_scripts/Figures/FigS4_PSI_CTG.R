@@ -1,7 +1,7 @@
 # Original script made by R van Cruchten to visualize the association of
 # the CTG repeat length with splice exclusion
 # Slight modifications by D van As for publication purposes
-# Last changes applied on 06/07/22
+# Last changes applied on 19/07/22
 
 ###############
 ## Libraries ##
@@ -106,10 +106,6 @@ for (exon_ID in lm_fit_values[["V2Mode_SE"]][,"exon"][order(lm_fit_values[["V2Mo
   names(df2) <- c(outcome,"counts","Visit","PatientID")
   df2 <- df2[order(df2$Visit),]
   pcor <- corr.test(df2$V2Mode, df2$counts, method="pearson")
-  pcor$p <- round(pcor$p, 4)
-  if (pcor$p < 0.0001){
-    pcor$p <- "< 0.0001"
-  }
   
   gene_plots[[exon_ID]] <- ggplot(df2, aes_string(x=outcome, y="counts",group="PatientID")) +
     ggtitle(paste(lm_fit_values[["V2Mode_SE"]][lm_fit_values[["V2Mode_SE"]][,"exon"] == exon_ID,"exon_short"])) +
@@ -124,10 +120,7 @@ for (exon_ID in lm_fit_values[["V2Mode_SE"]][,"exon"][order(lm_fit_values[["V2Mo
                        labels = label_number(accuracy = 0.1)) +
     annotation_custom(grobTree(textGrob(
         paste0("Rho = ", round(pcor$r,3)), 
-        x=0.05, y=0.22, just = "left")))+
-    annotation_custom(grobTree(textGrob(
-        paste0("p = ", pcor$p), 
-        x=0.05, y=0.1, just = "left")))+
+        x=0.05, y=0.14, just = "left", gp=gpar(fontsize=16))))+
     theme(
       panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
       aspect.ratio = 0.4,
