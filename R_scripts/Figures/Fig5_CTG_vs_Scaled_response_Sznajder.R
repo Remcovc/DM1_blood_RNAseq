@@ -1,7 +1,7 @@
 # Original script made by R van Cruchten to visualize the association of
 # CTG repeat effect with Compound Response effect sizes
 # Modifications by D van As for publication purposes and updated results
-# Last changes applied on 06/07/22
+# Last changes applied on 19/07/22
 
 
 ###############
@@ -67,10 +67,6 @@ df <- data.frame(
   Response = Response[,"Estimate"],
   both = ifelse(Response[,"FDR"] < 0.05 & Repeat[,"FDR"] < 0.05, "yes","no"))
 pcor <- corr.test(df$Repeat[df$both == "yes"], df$Response[df$both=="yes"], method="pearson")
-pcor$p <- round(pcor$p, 4)
-if (pcor$p < 0.0001){
-  pcor$p <- "< 0.0001"
-}
 
 # reorder so that genes significant in both are plotted on front of the others
 df <- df[order(df$both),]
@@ -86,11 +82,7 @@ B <- ggplot(df,  aes_string(x="Repeat", y="Response")) +
   annotation_custom(grobTree(textGrob(
     paste0("Rho = ", round(pcor$r, 2)), 
     x=0.05, y=0.95, just = "left",
-    gp=gpar(fontsize=14))))+
-  annotation_custom(grobTree(textGrob(
-    paste0("p = ", pcor$p), 
-    x=0.05, y=0.9, just = "left",
-    gp=gpar(fontsize=14))))+
+    gp=gpar(fontsize=20))))+
   scale_y_continuous(breaks = seq(-2.5, 2.5, 0.5), 
                      limits = c(-2.5, 2.5)) +
   scale_x_continuous(breaks = seq(-0.25, 0.25, 0.05), 
@@ -134,10 +126,6 @@ df <- data.frame(
   Response = new_fit[,"Estimate"],
   both = ifelse(CTG_fit_new[,"FDR"] < 0.05 & new_fit[,"FDR"] < 0.05, "yes","no"))
 pcor <- corr.test(df$DM1eff[df$both == "yes"], df$Response[df$both=="yes"], method="pearson")
-pcor$p <- round(pcor$p, 4)
-if (pcor$p < 0.0001){
-  pcor$p <- "< 0.0001"
-}
 
 # reorder so that genes significant in both are plotted on front of the others
 df <- df[order(df$both),]
@@ -157,11 +145,7 @@ C <- ggplot(df,  aes_string(x="DM1eff", y="Response")) +
   annotation_custom(grobTree(textGrob(
     paste0("Rho = ", round(pcor$r, 2)), 
     x=0.05, y=0.95, just = "left",
-    gp=gpar(fontsize=14))))+
-  annotation_custom(grobTree(textGrob(
-    paste0("p = ", pcor$p), 
-    x=0.05, y=0.9, just = "left",
-    gp=gpar(fontsize=14))))+
+    gp=gpar(fontsize=20))))+
   theme(
     panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
     aspect.ratio = 1,
