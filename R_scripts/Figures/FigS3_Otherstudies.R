@@ -3,7 +3,7 @@
 # of other cohorts
 
 # Slight modifications by D van As for publication purposes
-# Last changes applied on 6/7/2022
+# Last changes applied on 19/7/2022
 
 
 ###############
@@ -116,9 +116,9 @@ for (study in names(studies)[!names(studies) == "CTGRepeat"]){
   
   colnames(df) <- c("ReCognitION", study)
   pcor <- corr.test(df[,"ReCognitION"],df[,study], method="pearson")
-  pcor$p <- round(pcor$p, 4)
-  if (pcor$p < 0.0001){
-    pcor$p <- "< 0.0001"
+  pcor$p <- round(pcor$p, 3)
+  if (pcor$p < 0.001){
+    pcor$p <- "< 0.001"
   }
   
   study_plots[[study]] <- ggplot(df,  aes_string(x="ReCognitION", y = study)) + 
@@ -133,10 +133,10 @@ for (study in names(studies)[!names(studies) == "CTGRepeat"]){
     geom_vline(xintercept=0, col = "red") +
     annotation_custom(grobTree(textGrob(
       paste0("Rho = ", round(pcor$r,3)), 
-      x=0.05, y=0.95, just = "left")))+
+      x=0.05, y=0.95, just = "left", gp=gpar(fontsize=16))))+
     annotation_custom(grobTree(textGrob(
       paste0("p = ", pcor$p), 
-      x=0.05, y=0.85, just = "left")))+
+      x=0.05, y=0.85, just = "left", gp=gpar(fontsize=16))))+
     scale_x_continuous(labels = scales::comma(seq(-0.4, 0.4, 0.1), accuracy = 0.1), 
                        breaks = seq(-0.4, 0.4, 0.1), 
                        lim = c(-0.4, 0.4),
