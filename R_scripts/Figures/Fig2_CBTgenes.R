@@ -2,7 +2,7 @@
 # Original script made by R van Cruchten to visualize differential gene 
 # expression after CBT in the OPTIMISTIC intervention group
 # Modifications by D van As for publication purposes
-# Last changes applied on 19/07/22
+# Last changes applied on 22/09/22
 
 ###############
 ## Libraries ##
