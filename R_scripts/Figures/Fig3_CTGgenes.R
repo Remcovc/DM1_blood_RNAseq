@@ -1,7 +1,7 @@
 # Original script made by R van Cruchten to visualize the association of
 # the CTG repeat length with gene expression
 # Modifications by D van As for publication purposes and updated results
-# Last changes applied on 06/07/22
+# Last changes applied on 22/09/22
 
 ###############
 ## Libraries ##
@@ -46,7 +46,7 @@ df <- data.frame(hgnc_symbol = CTG_df$CTG.hgnc_symbol,
 ## Volcano plot
 A <- ggplot(df, aes(x = effect*100, y = -log10(p.value)))+
   geom_point(size= 1, col = ifelse(df$FDR < 0.05, "black","grey")) +
-  geom_label_repel(label = ifelse(df$ENSG %in%  df$ENSG[order(df$p.value)][1:4], df$hgnc_symbol, ""), max.overlaps = 100,  force = 25, color = "black", size = 5, segment.size = 0.25, fontface ="italic") +
+  geom_label_repel(label = ifelse(df$ENSG %in%  df$ENSG[order(df$p.value)][1:4], df$hgnc_symbol, ""), max.overlaps = 100,  force = 25, color = "black", size = 6, segment.size = 0.25, fontface ="italic") +
   xlab("CTG repeat effect size (per 100 CTGs)") +
   ylab("-10log(p-value)") +
   scale_y_continuous(limits = c(0, 6), 
@@ -61,11 +61,11 @@ A <- ggplot(df, aes(x = effect*100, y = -log10(p.value)))+
         panel.background = element_rect(fill="white"),
         panel.grid.major.x = element_line(size = 0.25, color = "grey"),
         panel.grid.major.y = element_line(size = 0.25, color = "grey"),
-        axis.text.x = element_text(color = "black", size = 12),
-        axis.text.y = element_text(color = "black", size = 12),
-        axis.title.x = element_text(color ="black", size = 14),
-        axis.title.y = element_text(color = "black", size = 14),
-        plot.title = element_text(color = "black", size = 16),
+        axis.text.x = element_text(color = "black", size = 16),
+        axis.text.y = element_text(color = "black", size = 16),
+        axis.title.x = element_text(color ="black", size = 18),
+        axis.title.y = element_text(color = "black", size = 18),
+        plot.title = element_text(color = "black", size = 18),
         plot.margin = margin(c(0.05,0.2,0.05,0.05), unit="cm"),
         plot.tag = element_text(color ="black", size= 20, face="bold")
   )
@@ -106,11 +106,11 @@ for (ENSG_ID in df$ENSG[order(df$p.value)][1:4]){
       panel.background = element_rect(fill="white"),
       panel.grid.major.x = element_line(size = 0.25, color = "grey"),
       panel.grid.major.y = element_line(size = 0.25, color = "grey"),
-      axis.text.x = element_text(color = "black", size = 12),
-      axis.text.y = element_text(color = "black", size = 12),
-      axis.title.y = element_text(color = "black", size = 14),
-      axis.title.x = element_text(color = "black", size=14),
-      plot.title = element_text(color = "black", size = 16, face="italic"),
+      axis.text.x = element_text(color = "black", size = 16),
+      axis.text.y = element_text(color = "black", size = 16),
+      axis.title.y = element_text(color = "black", size = 18),
+      axis.title.x = element_text(color = "black", size=18),
+      plot.title = element_text(color = "black", size = 18, face="italic"),
       plot.margin = margin(c(0.05,0.2,0.05,0.05), unit="cm"),
     )
 }
@@ -123,7 +123,7 @@ gs <- list(A, plots)
 lay <- rbind(c(1,1,2),
              c(1,1,2))
 plot <- arrangeGrob(grobs = gs, layout_matrix=lay)
-ggsave(plot, file ="Fig3_CTG_volc_genes.jpeg", height = 10, width = 10, dpi = 600 )
+ggsave(plot, file ="Fig3_CTG_volc_genes.png", height = 10, width = 10, dpi = 1200, device="png" )
 
 
 
