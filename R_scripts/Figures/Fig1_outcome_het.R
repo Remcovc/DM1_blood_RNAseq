@@ -75,10 +75,10 @@ A <- ggplot(df, aes(x=reorder(PatientID, clust_order), y = outcome_change))+
         theme(panel.grid.major.x = element_line(size = 0.25, color = "grey"),
               panel.grid.major.y = element_line(size = 0.25, color = "grey"),
               panel.border = element_rect(colour = "black", fill = NA, size = 0.5),
-              axis.text.x = element_text(color = "black", size = 14),
-              axis.text.y = element_text(color = "black", size = 12),
-              axis.title.y = element_text(color = "black", size = 16),
-              axis.title.x = element_text(color = "black", size = 16),
+              axis.text.x = element_text(color = "black", size = 16),
+              axis.text.y = element_text(color = "black", size = 16),
+              axis.title.y = element_text(color = "black", size = 18),
+              axis.title.x = element_text(color = "black", size = 18),
               plot.margin = margin(c(0.05,0.05,0.05,0.05), unit="cm"))+
         coord_flip()
 
@@ -102,8 +102,8 @@ B <- ggplot(df, aes(type, outcome, color = outcome_group)) +
   theme(
     legend.key.size = unit(1, 'cm'),
     legend.key.height = unit(1, 'cm'),
-    legend.title = element_text(size=16),
-    legend.text = element_text(size=14)
+    legend.title = element_text(size=18),
+    legend.text = element_text(size=16)
   )
 B <- get_legend(B)
 B <- as_ggplot(B)
