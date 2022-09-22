@@ -116,7 +116,7 @@ lay <- rbind(c(1,1,1,1,3),
              c(1,1,1,1,3))
 plot <- arrangeGrob(grobs = gs, layout_matrix=lay)
 
-ggsave(plot, file ="Fig1_out_het.jpeg", height = 10, width = 15, dpi = 600 )
+ggsave(plot, file ="Fig1_out_het.png", height = 10, width = 15, dpi = 1200, device="png" )
 
 
 
