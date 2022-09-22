@@ -50,7 +50,7 @@ df <- data.frame(hgnc_symbol = CBT_df$CBT.hgnc_symbol,
 ################
 A <- ggplot(df, aes(x = effect, y = -log10(p.value)))+
   geom_point(size= 1, col = ifelse(df$FDR < 0.05, "black","grey")) +
-  geom_label_repel(label = ifelse(df$ENSG %in%  df$ENSG[order(df$p.value)][1:4], df$hgnc_symbol, ""), max.overlaps = 100,  force = 25, color = "black", size = 5, segment.size = 0.25, fontface ="italic") +
+  geom_label_repel(label = ifelse(df$ENSG %in%  df$ENSG[order(df$p.value)][1:4], df$hgnc_symbol, ""), max.overlaps = 100,  force = 25, color = "black", size = 6, segment.size = 0.25, fontface ="italic") +
   xlab("CBT effect size") +
   ylab("-10log(p-value)") +
   scale_y_continuous(limits = c(0, 6), 
@@ -65,11 +65,11 @@ A <- ggplot(df, aes(x = effect, y = -log10(p.value)))+
         panel.background = element_rect(fill="white"),
         panel.grid.major.x = element_line(size = 0.25, color = "grey"),
         panel.grid.major.y = element_line(size = 0.25, color = "grey"),
-        axis.text.x = element_text(color = "black", size = 14),
-        axis.text.y = element_text(color = "black", size = 14),
-        axis.title.x = element_text(color ="black", size = 16),
-        axis.title.y = element_text(color = "black", size = 16),
-        plot.title = element_text(color = "black", size = 16),
+        axis.text.x = element_text(color = "black", size = 16),
+        axis.text.y = element_text(color = "black", size = 16),
+        axis.title.x = element_text(color ="black", size = 18),
+        axis.title.y = element_text(color = "black", size = 18),
+        plot.title = element_text(color = "black", size = 18),
         plot.margin = margin(c(0.05,0.2,0.05,0.05), unit="cm"),
         plot.tag = element_text(color ="black", size= 20, face="bold"))
 
