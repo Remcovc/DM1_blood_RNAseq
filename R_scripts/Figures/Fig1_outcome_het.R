@@ -10,11 +10,11 @@ library("gridExtra") #V 2.3
 
 ## Load datasets
 # a file with all changes in outcome measures, corrected for direction (generated in tableS3_metadata.rmd)
-load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/metadata/dOutcomes_corrected.RDATA")
+load(file = "dOutcomes_corrected.RDATA")
 # a file with all outcome measures, listed per type (generated in tableS3_metadata.rmd)
-load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/metadata/outcome_types.RData")
+load(file = "outcome_types.RData")
 # a table with all samples and their metadata (generated in tableS3_metadata.rmd)
-load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/metadata/samples.RDATA")
+load(file = "samples.RDATA")
 
 ## Boxplot
 #scale the outcomes
@@ -114,7 +114,7 @@ lay <- rbind(c(1,1,1,1,3),
 plot <- arrangeGrob(grobs = gs, layout_matrix=lay)
 
 ggsave(plot, 
-       file ="Z:/Analysis_projects/DvA_recognition_rnaseq_diff_expr/Publication_GitHub/Revision updates/Figures/Fig1_out_het.png", 
+       file ="Fig1_out_het.png", 
        height = 10, 
        width = 15, 
        dpi = 1200,
