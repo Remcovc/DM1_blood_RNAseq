@@ -1,1 +1,0 @@
-This folder contains the updated scripts used to generate the figures
