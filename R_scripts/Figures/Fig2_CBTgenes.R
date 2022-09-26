@@ -25,13 +25,13 @@ library("corrplot")     #V 0.92
 ## Loading relevant data ##
 ###########################
 # a table with all samples and their metadata (generated in tableS3_metadata.rmd)
-load(file = "Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/metadata/samples.RDATA")
+load(file = "samples.RDATA")
 # load CBT mixed effects model
-load("Z:/Analysis_projects/DvA_recognition_rnaseq_diff_expr/for_paper_counts/CBT_coef.RDATA")
+load("CBT_coef.RDATA")
 #this Voom object features counts with a cutoff of 50 based on the Visit (CBT) design. From Mixed_model_gene_expression_DVA.R
-load(file = "Z:/Analysis_projects/DvA_recognition_rnaseq_diff_expr/for_paper_counts/v_visit.RDATA")
+load(file = "v_visit.RDATA")
 # df with all ENSG en hgnc symbols
-hgnc_symbol <- read.table("Z:/Analysis_projects/RvC_recognition_rnaseq_diff_expr/for_paper_counts/metadata/ENSG_geneSymbol.txt", sep =",", header=TRUE)
+hgnc_symbol <- read.table("ENSG_geneSymbol.txt", sep =",", header=TRUE)
 
 
 ##########################################################################################
@@ -135,7 +135,7 @@ lay <- rbind(c(1,1,3,3,3),
              c(2,2,2,2,2))
 plot <- arrangeGrob(grobs = gs, layout_matrix=lay)
 ggsave(plot, 
-       file ="Z:/Analysis_projects/DvA_recognition_rnaseq_diff_expr/Publication_GitHub/Revision updates/Figures/Fig2_CBT_genes.png", 
+       file ="Fig2_CBT_genes.png", 
        height = 10, width = 11, 
        dpi = 1200,
        device ="png")
@@ -174,7 +174,7 @@ map <- heatmap3(delta_counts_sig, scale="row",
                 main="",
                 margin=c(2,2))
 
-png("Z:/Analysis_projects/DvA_recognition_rnaseq_diff_expr/Publication_GitHub/Revision updates/Figures/Fig2_Heatmap.png",
+png("Fig2_Heatmap.png",
     width=400,
     height=600,
     res=300,
@@ -221,7 +221,7 @@ ddf[2,] <- scale(ddf[2,], center=F)
 
 ## Visualize results & save
 
-png("Z:/Analysis_projects/DvA_recognition_rnaseq_diff_expr/Publication_GitHub/Revision updates/Figures/Fig2_Heatmap_cor.png",
+png("Fig2_Heatmap_cor.png",
     width=600,
     height=200,
     res=300,
